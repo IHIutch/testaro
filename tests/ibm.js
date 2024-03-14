@@ -147,7 +147,7 @@ const doTest = async (content, withItems, timeLimit, rules) => {
       }
       catch(error) {
         console.log('No result files created');
-      };
+      }
       // Return a trimmed act report.
       const {report} = runReport;
       const trimmedReport = trimActReport(data, report, withItems, rules);
@@ -162,7 +162,7 @@ const doTest = async (content, withItems, timeLimit, rules) => {
       return {
         data: runReport,
         result: {}
-      }
+      };
     }
   }
   catch(error) {

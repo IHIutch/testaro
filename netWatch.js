@@ -29,8 +29,6 @@
 
 // Module to keep secrets.
 require('dotenv').config();
-// Module to read and write files.
-const fs = require('fs/promises');
 // Modules to make requests to servers.
 const httpClient = require('http');
 const httpsClient = require('https');

@@ -262,7 +262,7 @@ exports.reporter = async (page, withItems, trialKeySpecs = []) => {
         // Add an instance to the result.
         standardInstances.push({
           ruleID: 'buttonMenu',
-          what: `Menu button does not control exactly 1 menu`,
+          what: 'Menu button does not control exactly 1 menu',
           ordinalSeverity: 2,
           tagName: 'BUTTON',
           id: await mbData.id,

@@ -196,7 +196,7 @@ exports.reporter = async (page, options) => {
       const message = `ERROR: qualWeb result cannot be made JSON (${error.message})`;
       data.prevented = true;
       data.error = message;
-    };
+    }
   }
   catch(error) {
     const message = error.message.slice(0, 200);
@@ -206,7 +206,7 @@ exports.reporter = async (page, options) => {
       prevented: true,
       error: message
     };
-  };
+  }
   return {
     data,
     result

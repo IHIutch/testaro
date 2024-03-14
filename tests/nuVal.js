@@ -33,8 +33,6 @@
 
 // IMPORTS
 
-// Module to process files.
-const fs = require('fs/promises');
 // Module to get the document source.
 const {getSource} = require('../procs/getSource');
 
@@ -98,8 +96,8 @@ exports.reporter = async (page, options) => {
         console.log(message);
         data.prevented = true;
         data.error = message;
-      };
-    };
+      }
+    }
   }
   return {
     data,

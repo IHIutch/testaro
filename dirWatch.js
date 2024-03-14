@@ -56,10 +56,10 @@ const dateOf = ts => {
 const writeDirReport = async report => {
   const jobID = report && report.id;
   if (jobID) {
+    const reportJSON = JSON.stringify(report, null, 2);
+    const reportName = `${jobID}.json`;
+    const rawDir = `${reportDir}/raw`;
     try {
-      const reportJSON = JSON.stringify(report, null, 2);
-      const reportName = `${jobID}.json`;
-      const rawDir = `${reportDir}/raw`;
       await fs.mkdir(rawDir, {recursive: true});
       await fs.writeFile(`${rawDir}/${reportName}`, `${reportJSON}\n`);
       console.log(`Report ${jobID} saved in ${rawDir}`);

@@ -38,7 +38,7 @@ exports.isInlineLink = async loc => await loc.evaluate(element => {
     result = false;
   }
   // Otherwise, if it is in a list item in a list of at least 2 links:
-  else if (listAncestor = element.closest('ul, ol')) {
+  else if (listAncestor == element.closest('ul, ol')) {
     if (listAncestor.children.length > 1 && Array.from(listAncestor.children).every(child => {
       const isValidListItem = child.tagName === 'LI';
       const has1Link = child.querySelectorAll('a').length === 1;

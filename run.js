@@ -30,11 +30,11 @@
 // Module to keep secrets.
 require('dotenv').config();
 // Requirements for acts.
-const {actSpecs} = require('./actSpecs');
+const { actSpecs } = require('./actSpecs');
 // Module to standardize report formats.
-const {standardize} = require('./procs/standardize');
+const { standardize } = require('./procs/standardize');
 // Module to send a notice to an observer.
-const {tellServer} = require('./procs/tellServer');
+const { tellServer } = require('./procs/tellServer');
 
 // ########## CONSTANTS
 
@@ -129,7 +129,7 @@ const hasType = (variable, type) => {
     return typeof variable === 'number';
   }
   else if (type === 'object') {
-    return typeof variable === 'object' && ! Array.isArray(variable);
+    return typeof variable === 'object' && !Array.isArray(variable);
   }
   else {
     return false;
@@ -212,7 +212,7 @@ const isValidAct = act => {
         const vP = validator[property];
         const aP = act[property];
         // If it is optional and omitted or is present and valid:
-        const optAndNone = ! vP[0] && ! aP;
+        const optAndNone = !vP[0] && !aP;
         const isValidAct = aP !== undefined && hasType(aP, vP[1]) && hasSubtype(aP, vP[2]);
         return optAndNone || isValidAct;
       }
@@ -240,7 +240,8 @@ const dateOf = timeStamp => {
     const dateString = punctuate(timeStamp.slice(0, 6), '-', 2);
     const timeString = punctuate(timeStamp.slice(7, 11), ':', 2);
     return new Date(`20${dateString}T${timeString}Z`);
-  } else {
+  }
+  else {
     return null;
   }
 };
@@ -248,11 +249,11 @@ const dateOf = timeStamp => {
 const isValidReport = report => {
   if (report) {
     // Return whether the report is valid.
-    const {id, what, strict, timeLimit, acts, sources, creationTimeStamp, timeStamp} = report;
-    if (! id || typeof id !== 'string') {
+    const { id, what, strict, timeLimit, acts, sources, creationTimeStamp, timeStamp } = report;
+    if (!id || typeof id !== 'string') {
       return 'Bad report ID';
     }
-    if (! what || typeof what !== 'string') {
+    if (!what || typeof what !== 'string') {
       return 'Bad report what';
     }
     if (typeof strict !== 'boolean') {
@@ -261,46 +262,46 @@ const isValidReport = report => {
     if (typeof timeLimit !== 'number' || timeLimit < 1) {
       return 'Bad report time limit';
     }
-    if (! acts || ! Array.isArray(acts) || ! acts.length) {
+    if (!acts || !Array.isArray(acts) || !acts.length) {
       return 'Bad report acts';
     }
-    if (! acts.every(act => act.type && typeof act.type === 'string')) {
+    if (!acts.every(act => act.type && typeof act.type === 'string')) {
       return 'Act with no type';
     }
     if (acts[0].type !== 'launch') {
       return 'First act type not launch';
     }
-    if (! ['chromium', 'webkit', 'firefox'].includes(acts[0].which)) {
+    if (!['chromium', 'webkit', 'firefox'].includes(acts[0].which)) {
       return 'Bad first act which';
     }
     if (acts[0].type !== 'launch' || (
       (
-        ! acts[0].url
+        !acts[0].url
         || typeof acts[0].url !== 'string'
-        || ! isURL(acts[0].url)
+        || !isURL(acts[0].url)
       )
       && (
         acts[1].type !== 'url'
-        || ! acts[1].which
+        || !acts[1].which
         || typeof acts[1].which !== 'string'
-        || ! isURL(acts[1].which)
+        || !isURL(acts[1].which)
       )
     )) {
       return 'First or second act has no valid URL';
     }
-    const invalidAct = acts.find(act => ! isValidAct(act));
+    const invalidAct = acts.find(act => !isValidAct(act));
     if (invalidAct) {
       return `Invalid act:\n${JSON.stringify(invalidAct, null, 2)}`;
     }
-    if (! sources || typeof sources !== 'object') {
+    if (!sources || typeof sources !== 'object') {
       return 'Bad report sources';
     }
     if (
-      ! (creationTimeStamp && typeof creationTimeStamp === 'string' && dateOf(creationTimeStamp))
+      !(creationTimeStamp && typeof creationTimeStamp === 'string' && dateOf(creationTimeStamp))
     ) {
       return 'bad job creation time stamp';
     }
-    if (! (timeStamp && typeof timeStamp === 'string')) {
+    if (!(timeStamp && typeof timeStamp === 'string')) {
       return 'bad report time stamp';
     }
     return '';
@@ -386,7 +387,7 @@ const goTo = async (report, page, url, timeout, waitUntil) => {
       };
     }
   }
-  catch(error) {
+  catch (error) {
     console.log(`ERROR visiting ${url} (${error.message.slice(0, 200)})`);
     return {
       success: false,
@@ -437,7 +438,7 @@ const launch = async (report, typeName, url, debug, waits, isLowMotion = false) 
       };
     });
     // Open a context (i.e. browser tab), with reduced motion if specified.
-    const options = {reduceMotion: isLowMotion ? 'reduce' : 'no-preference'};
+    const options = { reduceMotion: isLowMotion ? 'reduce' : 'no-preference' };
     const browserContext = await browser.newContext(options);
     // Prevent default timeouts.
     browserContext.setDefaultTimeout(0);
@@ -495,7 +496,7 @@ const launch = async (report, typeName, url, debug, waits, isLowMotion = false) 
         const msgLC = msgText.toLowerCase();
         if (
           msgText.includes('403') && (msgLC.includes('status')
-          || msgLC.includes('prohibited'))
+            || msgLC.includes('prohibited'))
         ) {
           report.jobData.prohibitedCount++;
         }
@@ -505,7 +506,7 @@ const launch = async (report, typeName, url, debug, waits, isLowMotion = false) 
     const page = await browserContext.newPage();
     try {
       // Wait until it is stable.
-      await page.waitForLoadState('domcontentloaded', {timeout: 5000});
+      await page.waitForLoadState('domcontentloaded', { timeout: 5000 });
       // Navigate to the specified URL.
       const navResult = await goTo(report, page, url, 15000, 'domcontentloaded');
       // If the navigation succeeded:
@@ -530,7 +531,7 @@ const launch = async (report, typeName, url, debug, waits, isLowMotion = false) 
       }
     }
     // If it fails to become stable after load:
-    catch(error) {
+    catch (error) {
       // Return this.
       console.log(`ERROR: Blank page load in new tab timed out (${error.message})`);
       return {
@@ -565,7 +566,7 @@ const textOf = async (page, element) => {
     if (['A', 'BUTTON', 'INPUT', 'SELECT'].includes(tagName)) {
       // Return its visible labels, descriptions, and legend if the first input in a fieldset.
       totalText = await page.evaluate(element => {
-        const {tagName, ariaLabel} = element;
+        const { tagName, ariaLabel } = element;
         let ownText = '';
         if (['A', 'BUTTON'].includes(tagName)) {
           ownText = element.textContent;
@@ -686,11 +687,11 @@ const isTrue = (object, specs) => {
       satisfied = typeof actual === 'string' && actual.includes(criterion);
     }
     else if (relation === '!i') {
-      satisfied = typeof actual === 'string' && ! actual.includes(criterion);
+      satisfied = typeof actual === 'string' && !actual.includes(criterion);
     }
     else if (relation === 'e') {
       satisfied = typeof actual === 'object'
-      && JSON.stringify(actual) === JSON.stringify(criterion);
+        && JSON.stringify(actual) === JSON.stringify(criterion);
     }
     return [actual, satisfied];
   }
@@ -728,7 +729,7 @@ const abortActs = async (report, actIndex) => {
   return -2;
 };
 // Adds an error result to an act.
-const addError = async(alsoLog, alsoAbort, report, actIndex, message) => {
+const addError = async (alsoLog, alsoAbort, report, actIndex, message) => {
   // If the error is to be logged:
   if (alsoLog) {
     // Log it.
@@ -773,7 +774,7 @@ const doActs = async (report, actIndex, page) => {
     console.log('ERROR: Job aborted');
   };
   // FUNCTION DEFINITION END
-  const {acts} = report;
+  const { acts } = report;
   // If any more acts are to be performed:
   if (actIndex > -1 && actIndex < acts.length) {
     // Identify the act to be performed.
@@ -850,7 +851,7 @@ const doActs = async (report, actIndex, page) => {
         // If the launch and navigation succeeded:
         if (launchResult && launchResult.success) {
           // Get the response of the target server.
-          const {response} = launchResult;
+          const { response } = launchResult;
           // Get the target page.
           page = launchResult.page;
           // Add the actual URL to the act.
@@ -881,13 +882,13 @@ const doActs = async (report, actIndex, page) => {
           // If the visit succeeded:
           if (navResult.success) {
             // Add the script nonce, if any, to the act.
-            const {response} = navResult;
+            const { response } = navResult;
             const scriptNonce = getNonce(response);
             if (scriptNonce) {
               report.jobData.lastScriptNonce = scriptNonce;
             }
             // Add the resulting URL to the act.
-            if (! act.result) {
+            if (!act.result) {
               act.result = {};
             }
             act.result.url = page.url();
@@ -907,19 +908,19 @@ const doActs = async (report, actIndex, page) => {
         }
         // Otherwise, if the act is a wait for text:
         else if (act.type === 'wait') {
-          const {what, which} = act;
+          const { what, which } = act;
           console.log(`>> ${what}`);
           const result = act.result = {};
           // If the text is to be the URL:
           if (what === 'url') {
             // Wait for the URL to be the exact text.
             try {
-              await page.waitForURL(which, {timeout: 15000});
+              await page.waitForURL(which, { timeout: 15000 });
               result.found = true;
               result.url = page.url();
             }
             // If the wait times out:
-            catch(error) {
+            catch (error) {
               // Quit.
               await abortActs();
               waitError(page, act, error, 'text in the URL');
@@ -931,8 +932,8 @@ const doActs = async (report, actIndex, page) => {
             try {
               await page.waitForFunction(
                 text => document
-                && document.title
-                && document.title.toLowerCase().includes(text.toLowerCase()),
+                  && document.title
+                  && document.title.toLowerCase().includes(text.toLowerCase()),
                 which,
                 {
                   polling: 1000,
@@ -943,7 +944,7 @@ const doActs = async (report, actIndex, page) => {
               result.title = await page.title();
             }
             // If the wait times out:
-            catch(error) {
+            catch (error) {
               // Quit.
               await abortActs();
               waitError(page, act, error, 'text in the title');
@@ -955,8 +956,8 @@ const doActs = async (report, actIndex, page) => {
             try {
               await page.waitForFunction(
                 text => document
-                && document.body
-                && document.body.innerText.toLowerCase().includes(text.toLowerCase()),
+                  && document.body
+                  && document.body.innerText.toLowerCase().includes(text.toLowerCase()),
                 which,
                 {
                   polling: 2000,
@@ -966,7 +967,7 @@ const doActs = async (report, actIndex, page) => {
               result.found = true;
             }
             // If the wait times out:
-            catch(error) {
+            catch (error) {
               // Quit.
               await abortActs();
               waitError(page, act, error, 'text in the body');
@@ -978,7 +979,7 @@ const doActs = async (report, actIndex, page) => {
           // Wait for it.
           const stateIndex = ['loaded', 'idle'].indexOf(act.which);
           await page.waitForLoadState(
-            ['domcontentloaded', 'networkidle'][stateIndex], {timeout: [10000, 15000][stateIndex]}
+            ['domcontentloaded', 'networkidle'][stateIndex], { timeout: [10000, 15000][stateIndex] }
           )
           // If the wait times out:
           .catch(async error => {
@@ -1002,7 +1003,7 @@ const doActs = async (report, actIndex, page) => {
           // Wait for a page to be created and identify it as current.
           page = await browserContext.waitForEvent('page');
           // Wait until it is idle.
-          await page.waitForLoadState('networkidle', {timeout: 15000});
+          await page.waitForLoadState('networkidle', { timeout: 15000 });
           // Add the resulting URL to the act.
           const result = {
             url: page.url()
@@ -1049,7 +1050,7 @@ const doActs = async (report, actIndex, page) => {
             };
             // Add any specified arguments to it.
             Object.keys(act).forEach(key => {
-              if (! ['type', 'which'].includes(key)) {
+              if (!['type', 'which'].includes(key)) {
                 options[key] = act[key];
               }
             });
@@ -1068,7 +1069,7 @@ const doActs = async (report, actIndex, page) => {
               }
             }
             // If the testing failed:
-            catch(error) {
+            catch (error) {
               // Report this.
               const message = error.message.slice(0, 400);
               console.log(`ERROR: Test act ${act.which} failed (${message})`);
@@ -1076,8 +1077,8 @@ const doActs = async (report, actIndex, page) => {
             }
             // Add the elapsed time of the tool to the report.
             const time = Math.round((Date.now() - startTime) / 1000);
-            const {toolTimes} = report.jobData;
-            if (! toolTimes[act.which]) {
+            const { toolTimes } = report.jobData;
+            if (!toolTimes[act.which]) {
               toolTimes[act.which] = 0;
             }
             toolTimes[act.which] += time;
@@ -1113,7 +1114,7 @@ const doActs = async (report, actIndex, page) => {
                   actual: truth[0],
                   passed: truth[1]
                 });
-                if (! truth[1]) {
+                if (!truth[1]) {
                   failureCount++;
                 }
               });
@@ -1124,11 +1125,11 @@ const doActs = async (report, actIndex, page) => {
           else if (moves[act.type]) {
             const selector = typeof moves[act.type] === 'string' ? moves[act.type] : act.what;
             // Try up to 5 times to:
-            act.result = {found: false};
+            act.result = { found: false };
             let selection = {};
             let tries = 0;
             const slimText = act.which ? debloat(act.which) : '';
-            while (tries++ < 5 && ! act.result.found) {
+            while (tries++ < 5 && !act.result.found) {
               if (page) {
                 // Identify the elements of the specified type.
                 const selections = await page.$$(selector);
@@ -1156,7 +1157,7 @@ const doActs = async (report, actIndex, page) => {
                       }
                     }
                     // If no element satisfied the specifications:
-                    if (! act.result.found) {
+                    if (!act.result.found) {
                       // Add the failure data to the report.
                       act.result.success = false;
                       act.result.error = 'exhausted';
@@ -1193,7 +1194,7 @@ const doActs = async (report, actIndex, page) => {
                 act.result.error = 'gone';
                 act.result.message = 'Page gone';
               }
-              if (! act.result.found) {
+              if (!act.result.found) {
                 await wait(2000);
               }
             }
@@ -1206,22 +1207,22 @@ const doActs = async (report, actIndex, page) => {
                 const move = isClick ? 'click' : 'Enter keypress';
                 try {
                   await isClick
-                    ? selection.click({timeout: 4000})
-                    : selection.press('Enter', {timeout: 4000});
+                    ? selection.click({ timeout: 4000 })
+                    : selection.press('Enter', { timeout: 4000 });
                   act.result.success = true;
                   act.result.move = move;
                 }
                 // If the move fails:
-                catch(error) {
+                catch (error) {
                   // Add the error result to the act and abort the job.
                   actIndex = await addError(true, true, report, actIndex, `ERROR: ${move} failed`);
                 }
                 if (act.result.success) {
                   try {
-                    await page.context().waitForEvent('networkidle', {timeout: 10000});
+                    await page.context().waitForEvent('networkidle', { timeout: 10000 });
                     act.result.idleTimely = true;
                   }
-                  catch(error) {
+                  catch (error) {
                     console.log(`ERROR: Network busy after ${move} (${errorStart(error)})`);
                     act.result.idleTimely = false;
                   }
@@ -1233,19 +1234,19 @@ const doActs = async (report, actIndex, page) => {
               // FUNCTION DEFINITION END
               // If the move is a button click, perform it.
               if (act.type === 'button') {
-                await selection.click({timeout: 3000});
+                await selection.click({ timeout: 3000 });
                 act.result.success = true;
                 act.result.move = 'clicked';
               }
               // Otherwise, if it is checking a radio button or checkbox, perform it.
               else if (['checkbox', 'radio'].includes(act.type)) {
-                await selection.waitForElementState('stable', {timeout: 2000})
+                await selection.waitForElementState('stable', { timeout: 2000 })
                 .catch(error => {
                   console.log(`ERROR waiting for stable ${act.type} (${error.message})`);
                   act.result.success = false;
                   act.result.error = `ERROR waiting for stable ${act.type}`;
                 });
-                if (! act.result.error) {
+                if (!act.result.error) {
                   const isEnabled = await selection.isEnabled();
                   if (isEnabled) {
                     await selection.check({
@@ -1257,7 +1258,7 @@ const doActs = async (report, actIndex, page) => {
                       act.result.success = false;
                       act.result.error = `ERROR checking ${act.type}`;
                     });
-                    if (! act.result.error) {
+                    if (!act.result.error) {
                       act.result.success = true;
                       act.result.move = 'checked';
                     }
@@ -1272,7 +1273,7 @@ const doActs = async (report, actIndex, page) => {
               }
               // Otherwise, if it is focusing the element, perform it.
               else if (act.type === 'focus') {
-                await selection.focus({timeout: 2000});
+                await selection.focus({ timeout: 2000 });
                 act.result.success = true;
                 act.result.move = 'focused';
               }
@@ -1291,15 +1292,15 @@ const doActs = async (report, actIndex, page) => {
                 else {
                   // Click the link and wait for the resulting navigation.
                   try {
-                    await selection.click({timeout: 5000});
+                    await selection.click({ timeout: 5000 });
                     // Wait for the new content to load.
-                    await page.waitForLoadState('domcontentloaded', {timeout: 6000});
+                    await page.waitForLoadState('domcontentloaded', { timeout: 6000 });
                     act.result.success = true;
                     act.result.move = 'clicked';
                     act.result.newURL = page.url();
                   }
                   // If the click or load failed:
-                  catch(error) {
+                  catch (error) {
                     // Quit and add failure data to the report.
                     console.log(`ERROR clicking link (${errorStart(error)})`);
                     act.result.success = false;
@@ -1308,7 +1309,7 @@ const doActs = async (report, actIndex, page) => {
                     await abortActs();
                   }
                   // If the link click succeeded:
-                  if (! act.result.error) {
+                  if (!act.result.error) {
                     // Add success data to the report.
                     act.result.success = true;
                     act.result.move = 'clicked';
@@ -1330,7 +1331,7 @@ const doActs = async (report, actIndex, page) => {
                   );
                   const index = matchTexts.filter(text => text > -1)[act.index || 0];
                   if (index !== undefined) {
-                    await selection.selectOption({index});
+                    await selection.selectOption({ index });
                     optionText = optionTexts[index];
                   }
                 }
@@ -1341,7 +1342,7 @@ const doActs = async (report, actIndex, page) => {
               // Otherwise, if it is entering text in an input element:
               else if (['text', 'search'].includes(act.type)) {
                 act.result.attributes = {};
-                const {attributes} = act.result;
+                const { attributes } = act.result;
                 const type = await selection.getAttribute('type');
                 const label = await selection.getAttribute('aria-label');
                 const labelRefs = await selection.getAttribute('aria-labelledby');
@@ -1349,7 +1350,7 @@ const doActs = async (report, actIndex, page) => {
                 attributes.label = label || '';
                 attributes.labelRefs = labelRefs || '';
                 // If the text contains a placeholder for an environment variable:
-                let {what} = act;
+                let { what } = act;
                 if (/__[A-Z]+__/.test(what)) {
                   // Replace it.
                   const envKey = /__([A-Z]+)__/.exec(what)[1];
@@ -1404,7 +1405,7 @@ const doActs = async (report, actIndex, page) => {
           }
           // Otherwise, if it is a repetitive keyboard navigation:
           else if (act.type === 'presses') {
-            const {navKey, what, which, withItems} = act;
+            const { navKey, what, which, withItems } = act;
             const matchTexts = which ? which.map(text => debloat(text)) : [];
             // Initialize the loop variables.
             let status = 'more';
@@ -1500,9 +1501,9 @@ const doActs = async (report, actIndex, page) => {
                   }
                   amountRead += textLength;
                   // If there is no text-match failure:
-                  if (matchedText || ! matchTexts.length) {
+                  if (matchedText || !matchTexts.length) {
                     // If the element has any specified tag name:
-                    if (! what || tagName === what) {
+                    if (!what || tagName === what) {
                       // Change the status.
                       status = 'done';
                       // Perform the action.
@@ -1576,7 +1577,7 @@ const doActs = async (report, actIndex, page) => {
     await doActs(report, actIndex + 1, page);
   }
   // Otherwise, if all acts have been performed and the job succeeded:
-  else if (! report.jobData.abortTime) {
+  else if (!report.jobData.abortTime) {
     console.log('Acts completed');
     await browserClose();
   }
@@ -1588,7 +1589,7 @@ const doActs = async (report, actIndex, page) => {
 exports.doJob = async report => {
   // If the report is valid:
   report.jobData = {};
-  const {jobData} = report;
+  const { jobData } = report;
   const reportInvalidity = isValidReport(report);
   if (reportInvalidity) {
     console.log(`ERROR: ${reportInvalidity}`);
@@ -1626,9 +1627,9 @@ exports.doJob = async report => {
     // Add the end time and duration to the report.
     const endTime = new Date();
     report.jobData.endTime = nowString();
-    report.jobData.elapsedSeconds =  Math.floor((endTime - startTime) / 1000);
+    report.jobData.elapsedSeconds = Math.floor((endTime - startTime) / 1000);
     // Consolidate and sort the tool times.
-    const {toolTimes} = report.jobData;
+    const { toolTimes } = report.jobData;
     const toolTimeData = Object
     .keys(toolTimes)
     .sort((a, b) => toolTimes[b] - toolTimes[a])

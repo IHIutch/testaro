@@ -40,7 +40,7 @@ exports.reporter = async (page, options) => {
   const scriptNonce = jobData && jobData.lastScriptNonce;
   // Get the test script.
   const script = await fs.readFile(`${__dirname}/../ed11y/editoria11y.min.js`, 'utf8');
-  const rawResultJSON = await page.evaluate(args => new Promise(async resolve => {
+  const rawResultJSON = await page.evaluate(args => new Promise(resolve => {
     // Impose a timeout on obtaining a result.
     const timer = setTimeout(() => {
       resolve(JSON.stringify({
@@ -139,7 +139,7 @@ exports.reporter = async (page, options) => {
     document.body.insertAdjacentElement('beforeend', testScript);
     // Run the script.
     try {
-      await new Ed11y({
+      new Ed11y({
         alertMode: 'headless'
       });
     }
@@ -148,7 +148,7 @@ exports.reporter = async (page, options) => {
         prevented: true,
         error: error.message
       }));
-    };
+    }
   }), {scriptNonce, script, rulesToTest: act.rules});
   const result = JSON.parse(rawResultJSON);
   let data = {};

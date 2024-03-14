@@ -564,7 +564,6 @@ const convert = (toolName, data, result, standardResult) => {
     if (result.rawPage) {
       doNuVal(result, standardResult, 'rawPage');
     }
-    const {instances} = standardResult;
   }
   // qualWeb
   else if (
